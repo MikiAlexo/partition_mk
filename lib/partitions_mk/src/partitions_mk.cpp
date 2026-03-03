@@ -220,11 +220,20 @@ else{
  }
 
  bool partition_mk::read_wificredentials_to(char*ssid, char* password){
-     String _ssid = preferences.getString("SSID",ssid);
-     String _pass = preferences.getString("Password", password);
+     String _ssid = preferences.getString("SSID","CowsVille");
+     String _pass = preferences.getString("Password", "defaiult psassword");
      if(_ssid.length() !=0 && _pass.length() !=0 ){
-        
+        strcpy(ssid, _ssid.c_str());
+        strcpy(password, _pass.c_str());
+        #if DEBUG_MODE
+        ESP_LOGI(TAG,"loaded credentials succesfully: %s, %s", ssid, password);
+        #endif
+        return true;
      }
-     ssid = 
-    password = 
+     else {
+        #if DEBUG_MODE
+        ESP_LOGE(TAG,"failed to load credentials succesfully");
+        #endif
+        return false;
+     }
  }
