@@ -204,17 +204,17 @@ else{
 
 }
 
- bool partition_mk::change_target_to(char* farm_id, char* cow_id)
+ bool partition_mk::change_target_to(char* farm_id, char* cow_id){
  if(preferences.putString("Farm ID", farm_id) > 0  && preferences.putString("Cow_ID", cow_id) > 0){
-    #if DEBIG_MODE
+    #if DEBUG_MODE
     ESP_LOGI(TAG,"cnaged farm ID and cow ID to: %s -farm id, %s -cow id", farm_id, cow_id);
     #endif
     return 1;
  }
  else{
-    #if DEBIG_MODE
+    #if DEBUG_MODE
     ESP_LOGE(TAG,"failed to change target id");
     #endif
     return 0;
  }
-
+ }
