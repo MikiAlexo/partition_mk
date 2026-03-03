@@ -3,22 +3,26 @@
 #include "data_structure.h"
 
 
-
-
 partition_mk storage;  
 partition_mk errLog;
 
 
 int packetId = 0;
 
-
-void printMenu() {
-    Serial.println("\n __choose operation__");
+void menu(){
+    Serial.println("Initialization Complete.");
+    Serial.println("\n choose operation");
     Serial.println("[w] Append new data");
     Serial.println("[r] Full dump");
     Serial.println("[s] Erase Sector 0 only");
     Serial.println("[f] Formate");
     Serial.println("[o] Overwrite at offset 0 address");
+    Serial.println("[a] read wifi credentials");
+    Serial.println("[b] read target info");
+    Serial.println("[e] read device id");
+    Serial.println("[c] change wifi credentials");
+    Serial.println("[d] change target info");
+    Serial.println("[f] change device id");
     Serial.println("[i] Info");
     // Serial.print("Current Pointer: ");
     // Serial.println(storage.get_pointer());
@@ -45,8 +49,6 @@ void setup() {
     
     
 
-    Serial.println("Initialization Complete.");
-    printMenu();
 }
 
 void loop() {
@@ -138,6 +140,21 @@ void loop() {
                 Serial.println("Overwrite complete.");
                 break;
             }
+            case 'a':{
+                char* ssid;
+                char *pass;
+                if(partition_mk::read_wificredentials_to(ssid,pass)){
+                    Serial.print("SSID:");
+                    Serial.println(ssid);
+                    Serial.print("Password:");
+                    Serial.println(pass);
+                } 
+                else{
+                    Serial.println("failed to read credentuals");
+                    errLog.append_data(&log_codes[NVS_READ_ERR], 1); 
+                }
+                break;
+            }
 
             case 'i': {
                 Serial.printf("Partition Size: %u bytes\n", storage.get_size());
@@ -146,7 +163,7 @@ void loop() {
             }
             
             default:
-                printMenu();
+                menu();
                 break;
         }
     }
