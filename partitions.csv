@@ -1,0 +1,15 @@
+
+#name     type  subtype            size
+#nvs,      data, nvs,     ,        128K,
+#otadata,  data, ota,     ,        0x2000,
+#app0,     app,  ota_0,   ,        1280K,
+#app1,     app,  ota_1,   ,        1280K,
+#storage,  data, 0x40,    ,        1M,
+#errorlog, data, 0x41,    ,        320K,
+# Name,   Type, SubType, Offset,  Size, Flags
+nvs,      data, nvs,     ,        0x4000,
+otadata,  data, ota,     ,        0x2000,
+app0,     app,  ota_0,   ,        1280K,
+app1,     app,  ota_1,   ,        1280K,
+storage,  data, 0x40,    ,        1M,
+errorlog, data, 0x41,    ,        256K,
