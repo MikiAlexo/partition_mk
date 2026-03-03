@@ -14,8 +14,6 @@ private:
     const esp_partition_t* _part_handle = NULL;
     const char* _name = NULL;
     int current_pointer = 0;
-    char ssid[16] = "blynk";
-    char password[9] = "12345678";
     static Preferences preferences;
 public:
     partition_mk();

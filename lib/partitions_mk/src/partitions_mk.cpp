@@ -218,3 +218,13 @@ else{
     return 0;
  }
  }
+
+ bool partition_mk::read_wificredentials_to(char*ssid, char* password){
+     String _ssid = preferences.getString("SSID",ssid);
+     String _pass = preferences.getString("Password", password);
+     if(_ssid.length() !=0 && _pass.length() !=0 ){
+        
+     }
+     ssid = 
+    password = 
+ }
