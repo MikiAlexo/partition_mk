@@ -45,7 +45,7 @@ public:
     bool read_wificredentials_to(char*ssid, char* password);
     bool read_device_id_to(char* device_id);
     bool read_target_to(char* farm_id, char* cow_id);
-    bool read_cowAvg_to(float* cow_avg);
+    bool read_cowAvg_to();
     static void init();
     
 };
