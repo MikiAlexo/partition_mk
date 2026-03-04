@@ -6,7 +6,7 @@ static const char* TAG = "PartMK";
 
  Preferences partition_mk::preferences;
 
-partition_mk::partition_mk() {
+partition_mk::partition_mk(void) {
     _part_handle = NULL;
 }
 
@@ -18,7 +18,7 @@ bool partition_mk::begin(const char* partitionName) {
     if (_part_handle == NULL) {
 
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Partition '%s' not found", partitionName);
+        ESP_LOGE(TAG, "partition '%s' not found", partitionName);
         #endif
 
         return false;
@@ -65,7 +65,7 @@ while (current_pointer < _part_handle->size) {
 }
 
 #if DEBUG_MODE
-    ESP_LOGI(TAG, "Partition head found at offset: %d", current_pointer);
+    ESP_LOGI(TAG, "rartition head found at offset: %d", current_pointer);
 #endif
     return true;
 }
@@ -75,7 +75,7 @@ bool partition_mk::read_data(int offset, void* buffer, size_t size) {
 
     if (offset + size > _part_handle->size) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Read out of bounds");
+        ESP_LOGE(TAG, "read out of bounds");
         #endif
         return false;
     }
@@ -83,7 +83,7 @@ bool partition_mk::read_data(int offset, void* buffer, size_t size) {
     esp_err_t err = esp_partition_read(_part_handle, offset, buffer, size);
     if (err != ESP_OK) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Read failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "read failed: %s", esp_err_to_name(err));
         #endif
         return false;
     }
@@ -95,7 +95,7 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
 
     if (offset + size > _part_handle->size) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Write out of bounds");
+        ESP_LOGE(TAG, "write out of bounds");
         #endif
         return false;
     }
@@ -104,7 +104,7 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
     
     if (err != ESP_OK) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Write failed: %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "write failed :( %s", esp_err_to_name(err));
         #endif
         return false;
     }
@@ -127,7 +127,7 @@ bool partition_mk::erase_sector(int offset) {
 
     if (offset % 4096 != 0) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "Erase offset %d is not sector(4096 bytes) aligned", offset);
+        ESP_LOGE(TAG, "erase offset %d is not sector aligned", offset);
         #endif
         return false;
     }
@@ -139,7 +139,7 @@ bool partition_mk::erase_sector(int offset) {
         if (current_pointer >= offset && current_pointer < (offset + 4096)) {
             current_pointer = offset;
             #if DEBUG_MODE
-            ESP_LOGI(TAG, "Pointer reset to %d because active sector was erased", current_pointer);
+            ESP_LOGI(TAG, "pointer reset to %d because active sector was erased", current_pointer);
             #endif
         }
         return true;
@@ -147,7 +147,7 @@ bool partition_mk::erase_sector(int offset) {
     return false;
 }
 
-bool partition_mk::erase_full_partition() {
+bool partition_mk::erase_full_partition(void) {
     if (!_part_handle) return false;
 
     esp_err_t err = esp_partition_erase_range(_part_handle, 0, _part_handle->size);
@@ -157,16 +157,16 @@ bool partition_mk::erase_full_partition() {
         return true;
     }
    #if DEBUG_MODE
-    ESP_LOGE(TAG, "Full partition erase failed: %s", esp_err_to_name(err));
+    ESP_LOGE(TAG, "full partition erase failed: %s", esp_err_to_name(err));
    #endif    
     return false;
 }
 
-size_t partition_mk::get_size() {
+size_t partition_mk::get_size(void) {
     if (!_part_handle) return 0;
     return _part_handle->size;
 }
-void partition_mk::init(){
+void partition_mk::init(void){
     preferences.begin("credentials", false);
     preferences.begin("info", false);
     preferences.begin("cow-avg", false);
@@ -256,6 +256,21 @@ else{
  }
 
  bool partition_mk::read_target_to(char* farm_id, char* cow_id){
+    String _farm = preferences.getString("Farm-ID","xxx-xxxx");
+    String _cow = preferences.getString("Cow-ID","xxxx-xxxxxx");
 
-    
+    if(_farm.length()!=0 && _cow.length()!=0){
+        strcpy(farm_id,_farm.c_str());
+        strcpy(cow_id,_cow.c_str());
+   #if DEBUG_MODE
+        ESP_LOGI(TAG,"loaded target ID succesfully: %s -farm-ID, %s -cow-ID", farm_id, cow_id);
+        #endif
+        return true;
+    } 
+    else{
+        #if DEBUG_MODE
+        ESP_LOGI(TAG,"failed to load device ID succesfully");
+        #endif
+        return false;
+    }
  }

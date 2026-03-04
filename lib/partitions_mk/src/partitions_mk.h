@@ -16,7 +16,7 @@ private:
     int current_pointer = 0;
     static Preferences preferences;
 public:
-    partition_mk();
+    partition_mk(void);
 
     bool begin(const char* partitionName);
 
@@ -26,11 +26,11 @@ public:
     bool append_data(const void* data, size_t size);
 
     bool erase_sector(int offset);
-    bool erase_full_partition();
+    bool erase_full_partition(void);
 
-    size_t get_size();
+    size_t get_size(void);
 
-    int get_pointer() { return current_pointer; }
+    int get_pointer(void) { return current_pointer; }
     void set_pointer(int offset) { current_pointer = offset; }
 
     int check_remaining_chunk(const void *data) { return (get_size()-current_pointer)/sizeof(data); }
@@ -44,8 +44,15 @@ public:
     static bool read_device_id_to(char* device_id);    //e
     static bool read_target_to(char* farm_id, char* cow_id); //b
     static bool read_cowAvg_to();
-    static void init();
-    
+    static void init(void);
+    // fix a bug where the NVS is only using the credensitals namespace
+    // double check if the .end() statement is nessesary for NVS
+    // check if the start pointer determiner logic is correctly finding the end parity
+
+    /*write example test code   {saving wifi credentials, connecting to wifi by loading from NVS,
+                                saving sensor data in sotrage partition, loading stored sensor data,
+                                creating intentional errors to verify if the error logging system is working } 
+    */
 };
 
 #endif
