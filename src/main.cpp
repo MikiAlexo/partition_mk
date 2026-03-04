@@ -31,7 +31,7 @@ void menu(){
 void setup() {
   bool err = false;
     Serial.begin(115200);
-    partition_mk::init(void);
+     partition_mk::init_NVS();
 
     Serial.println("Initializing Partitions...");
 

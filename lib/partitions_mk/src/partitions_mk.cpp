@@ -4,7 +4,9 @@
 static const char* TAG = "PartMK";
 #endif
 
- Preferences partition_mk::preferences;
+Preferences partition_mk::config_pref;
+Preferences partition_mk::info_pref;
+Preferences partition_mk::cowavg_pref;
 
 partition_mk::partition_mk(void) {
     _part_handle = NULL;
@@ -166,15 +168,20 @@ size_t partition_mk::get_size(void) {
     if (!_part_handle) return 0;
     return _part_handle->size;
 }
-void partition_mk::init(void){
-    preferences.begin("credentials", false);
-    preferences.begin("info", false);
-    preferences.begin("cow-avg", false);
+void partition_mk::init_NVS(void){
+    config_pref.begin("credentials", false);
+    info_pref.begin("info", false);
+    cowavg_pref.begin("cow-avg", false);
 
+}
+void partition_mk::end_NVS(void){
+    config_pref.end();
+    info_pref.end();
+    cowavg_pref.end();
 }
 
 bool partition_mk::change_wificredentials_to(const char* ssid, const char* password){
-if (preferences.putString("SSID", ssid) > 0 && preferences.putString("Password", password) > 0 ){
+if (config_pref.putString("SSID", ssid) > 0 && config_pref.putString("Password", password) > 0 ){
  #if DEBUG_MODE
     ESP_LOGI(TAG, "wifi credentals changed to : %s-ssid, %s-password", ssid, password);
    #endif    
@@ -189,7 +196,7 @@ else{
 }
 
 bool partition_mk::change_device_id_to(char* device_id){
-if(preferences.putString("Device ID", device_id)> 0){
+if(info_pref.putString("Device ID", device_id)> 0){
     #if DEBUG_MODE
     ESP_LOGI(TAG,"changed Device ID to: %s", device_id);
     #endif
@@ -205,7 +212,7 @@ else{
 }
 
  bool partition_mk::change_target_to(char* farm_id, char* cow_id){
- if(preferences.putString("Farm ID", farm_id) > 0  && preferences.putString("Cow_ID", cow_id) > 0){
+ if(info_pref.putString("Farm ID", farm_id) > 0  && info_pref.putString("Cow_ID", cow_id) > 0){
     #if DEBUG_MODE
     ESP_LOGI(TAG,"cnaged farm ID and cow ID to: %s -farm id, %s -cow id", farm_id, cow_id);
     #endif
@@ -220,8 +227,8 @@ else{
  }
 
  bool partition_mk::read_wificredentials_to(char*ssid, char* password){
-     String _ssid = preferences.getString("SSID","CowsVille");
-     String _pass = preferences.getString("Password", "defaiult psassword");
+     String _ssid = config_pref.getString("SSID","CowsVille");
+     String _pass = config_pref.getString("Password", "defaiult psassword");
      if(_ssid.length() !=0 && _pass.length() !=0 ){
         strcpy(ssid, _ssid.c_str());
         strcpy(password, _pass.c_str());
@@ -239,7 +246,7 @@ else{
  }
 
  bool partition_mk::read_device_id_to(char* device_id){
-    String _device_id = preferences.getString("Device-ID","xxxxxx");
+    String _device_id = info_pref.getString("Device-ID","xxxxxx");
     if(_device_id.length()!=0){
         strcpy(device_id,_device_id.c_str());
         #if DEBUG_MODE
@@ -256,8 +263,8 @@ else{
  }
 
  bool partition_mk::read_target_to(char* farm_id, char* cow_id){
-    String _farm = preferences.getString("Farm-ID","xxx-xxxx");
-    String _cow = preferences.getString("Cow-ID","xxxx-xxxxxx");
+    String _farm = info_pref.getString("Farm-ID","xxx-xxxx");
+    String _cow = info_pref.getString("Cow-ID","xxxx-xxxxxx");
 
     if(_farm.length()!=0 && _cow.length()!=0){
         strcpy(farm_id,_farm.c_str());
