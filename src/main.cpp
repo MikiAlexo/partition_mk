@@ -165,7 +165,30 @@ void loop() {
                      Serial.println("failed to load ID");
                      errLog.append_data(&log_codes[NVS_READ_ERR], 1);
                 }
+                break;
+            }
+            case 'c': {
+                char ssid[33];  
+                char password[65];
+                Serial.println("enter new wifi SSID:");
+                while (!Serial.available()) {}
+                Serial.readBytesUntil('\n', ssid, sizeof(ssid));
+                ssid[strcspn(ssid, "\r")] = 0;
 
+                Serial.println("enter new wifi password:");
+                while (!Serial.available()) {}
+                Serial.readBytesUntil('\n', password, sizeof(password));
+                password[strcspn(password, "\r")] = 0;
+
+                Serial.printf("SSID: %s , Password: %s\n", ssid, password);
+
+                if(partition_mk::change_wificredentials_to(ssid, password)){
+                    Serial.printf("changed ssid and pass to: %s, %s", ssid, password);
+                }
+                else{
+                    Serial.println("failed to change wifi credentials");
+                    errLog.append_data(&log_codes[NVS_WRITE_ERR], 1);
+                }
             }
 
             case 'i': {

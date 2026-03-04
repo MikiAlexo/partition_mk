@@ -14,6 +14,7 @@
 #define ERASE_ERR 4
 #define OVERFLOW_ERR 5
 #define NVS_READ_ERR 6
+#define NVS_WRITE_ERR 7
 
 
 static const uint8_t log_codes[] = {
