@@ -237,3 +237,25 @@ else{
         return false;
      }
  }
+
+ bool partition_mk::read_device_id_to(char* device_id){
+    String _device_id = preferences.getString("Device-ID","xxxxxx");
+    if(_device_id.length()!=0){
+        strcpy(device_id,_device_id.c_str());
+        #if DEBUG_MODE
+        ESP_LOGI(TAG,"loaded device ID succesfully: %s", device_id);
+        #endif
+        return true;
+    }else{
+        #if DEBUG_MODE
+        ESP_LOGI(TAG,"failed to load device id succesfully");
+        #endif
+        return false;
+    }
+
+ }
+
+ bool partition_mk::read_target_to(char* farm_id, char* cow_id){
+
+    
+ }

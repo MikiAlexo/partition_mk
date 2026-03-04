@@ -155,6 +155,18 @@ void loop() {
                 }
                 break;
             }
+            case 'e':{
+                 Serial.println("Loading device ID...");
+                 char* device_id;
+                if(partition_mk::read_device_id_to(device_id)){
+                     Serial.printf("found device with ID %s", device_id);
+                }
+                else{
+                     Serial.println("failed to load ID");
+                     errLog.append_data(&log_codes[NVS_READ_ERR], 1);
+                }
+
+            }
 
             case 'i': {
                 Serial.printf("Partition Size: %u bytes\n", storage.get_size());
