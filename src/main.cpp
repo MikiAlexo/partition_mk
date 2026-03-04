@@ -10,7 +10,6 @@ partition_mk errLog;
 int packetId = 0;
 
 void menu(){
-    Serial.println("Initialization Complete.");
     Serial.println("\n choose operation");
     Serial.println("[w] Append new data");
     Serial.println("[r] Full dump");
@@ -33,7 +32,7 @@ void setup() {
     Serial.begin(115200);
      partition_mk::init_NVS();
 
-    Serial.println("Initializing Partitions...");
+    Serial.println("initializing partitions...");
 
     if (!errLog.begin("errorlog")) {
         Serial.println("failed to mount errorlog");
@@ -69,11 +68,12 @@ void loop() {
 
 
                 if (storage.append_data(&myData, sizeof(SensorData))) {
-                    Serial.printf("Appended Packet #%d at offset %d\n", myData.id, storage.get_pointer() - sizeof(SensorData));
+                    Serial.printf("appended packet #%d at offset %d\n", myData.id, storage.get_pointer() - sizeof(SensorData));
                 } else {
-                    Serial.println("Append Failed, Partition full?");
+                    Serial.printf("append failed, partition full? %d \n", storage.get_pointer());
                     errLog.append_data(&log_codes[APPEND_ERR], 1);
                 }
+                Serial.println("operation complete");
                 break;
             }
 
@@ -90,7 +90,7 @@ void loop() {
                     if (storage.read_data(readPos, &buffer, sizeof(SensorData))) {
                         
                         if (buffer.id == 0xFFFFFFFF) {
-                            Serial.println("[Empty Flash Encountered]");
+                            Serial.println("[found end parity]");
                             break; 
                         }
 
@@ -99,45 +99,48 @@ void loop() {
                         
                         readPos += sizeof(SensorData);
                     } else {
-                        Serial.println("Read Error");
+                        Serial.println("read error");
                         errLog.append_data(&log_codes[READ_ERR],1);
                         break;
                     }
                 }
-                Serial.println("--- END OF READ ---");
+                Serial.println("operation complete");
                 break;
             }
 
             case 's': {
-                Serial.println("Erasing Sector 0 (0 - 4096 bytes)...");
+                Serial.println("erasing Sector 0 (0 - 4096 bytes)...");
                 if (storage.erase_sector(0)) {
-                    Serial.println("Sector 0 Erased.");
+                    Serial.println("sector 0 erased.");
                 } else {
-                    Serial.println("Erase Failed");
+                    Serial.println("erase failed");
                     errLog.append_data(&log_codes[ERASE_ERR],1);
                 }
+                Serial.println("operation complete");
                 break;
             }
 
             case 'f': {
-                Serial.println("Formatting entire partition (This takes time)...");
+                Serial.println("formatting entire partition (This takes time)...");
                 if (storage.erase_full_partition()) {
-                    Serial.println("Partition Wiped. Pointer reset to 0.");
+                    Serial.printf("partition Wiped. pointer reset to 0. %d", storage.get_pointer());
                     packetId = 0; 
                 } else {
-                    Serial.println("Format Failed");
+                    Serial.println("format failed");
                     errLog.append_data(&log_codes[ERASE_ERR],1);
                 }
+                Serial.println("operation complete");
                 break;
             }
 
             case 'o': {
-                Serial.println("Overwriting address 0 manually...");
+                Serial.println("overwriting address 0 manually...");
                 storage.erase_sector(0);
 
                 SensorData manualData = {9999, millis(), 99.99, 99.99};
                 storage.write_data(0, &manualData, sizeof(SensorData));
-                Serial.println("Overwrite complete.");
+                Serial.println("overwrite complete");
+                Serial.println("operation complete");
                 break;
             }
             case 'a':{
@@ -153,6 +156,7 @@ void loop() {
                     Serial.println("failed to read credentuals");
                     errLog.append_data(&log_codes[NVS_READ_ERR], 1); 
                 }
+                Serial.println("operation complete");
                 break;
             }
             case 'e':{
@@ -165,6 +169,7 @@ void loop() {
                      Serial.println("failed to load ID");
                      errLog.append_data(&log_codes[NVS_READ_ERR], 1);
                 }
+                Serial.println("operation complete");
                 break;
             }
             case 'c': {
@@ -189,11 +194,17 @@ void loop() {
                     Serial.println("failed to change wifi credentials");
                     errLog.append_data(&log_codes[NVS_WRITE_ERR], 1);
                 }
+                Serial.println("operation complete");
+                break;
             }
 
             case 'i': {
-                Serial.printf("Partition Size: %u bytes\n", storage.get_size());
-                Serial.printf("Current Write Pointer: %d\n", storage.get_pointer());
+                Serial.printf("partition size: %u bytes\n", storage.get_size());
+                Serial.printf("current write pointer: %d\n", storage.get_pointer());
+                Serial.printf("configuration namespace free entries: %d\n", partition_mk::config_pref.freeEntries());
+                Serial.printf("info namespace free entries: %d\n", partition_mk::info_pref.freeEntries());
+                Serial.printf("cow average namespace free entries: %d\n", partition_mk::cowavg_pref.freeEntries());
+                Serial.println("operation complete");
                 break;
             }
             

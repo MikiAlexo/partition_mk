@@ -14,10 +14,12 @@ private:
     const esp_partition_t* _part_handle = NULL;
     const char* _name = NULL;
     int current_pointer = 0;
+    
+public:
     static Preferences config_pref;
     static Preferences info_pref;
     static Preferences cowavg_pref;
-public:
+
     partition_mk(void);
 
     bool begin(const char* partitionName);
@@ -48,6 +50,7 @@ public:
     static bool read_cowAvg_to();
     static void init_NVS(void);
     static void end_NVS(void);
+
     // check if the start pointer determiner logic is correctly finding the end parity
 
     /*write example test code   {saving wifi credentials, connecting to wifi by loading from NVS,
