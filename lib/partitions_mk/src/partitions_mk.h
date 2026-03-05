@@ -40,8 +40,8 @@ public:
     int check_remaining_chunk(const void *data) { return (get_size()-current_pointer)/sizeof(data); }
 
     static bool change_wificredentials_to(const char* ssid, const char* password);
-    static bool change_device_id_to(char* device_id);
-    static bool change_target_to(char* farm_id, char* cow_id);
+    static bool change_device_id_to(char* device_id); //g
+    static bool change_target_to(char* farm_id, char* cow_id); //d
     static bool change_cowAvg_to();
 
     static bool read_wificredentials_to(char*ssid, char* password);

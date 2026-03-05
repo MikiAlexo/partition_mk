@@ -21,7 +21,7 @@ void menu(){
     Serial.println("[e] read device id");
     Serial.println("[c] change wifi credentials");
     Serial.println("[d] change target info");
-    Serial.println("[f] change device id");
+    Serial.println("[g] change device id");
     Serial.println("[i] Info");
     // Serial.print("Current Pointer: ");
     // Serial.println(storage.get_pointer());
@@ -60,15 +60,15 @@ void loop() {
         switch (cmd) {
             
             case 'w': {
-                SensorData myData;
-                myData.id = packetId++;
-                myData.timestamp = millis();
-                myData.temperature = random(2000, 3000) / 100.0;
-                myData.humidity = random(4000, 8000) / 100.0;
+                SensorData data;
+                data.id = packetId++;
+                data.timestamp = millis();
+                data.temperature = random(600, 10000) / 100.0;
+                data.humidity = random(4000, 8000) / 100.0;
 
 
-                if (storage.append_data(&myData, sizeof(SensorData))) {
-                    Serial.printf("appended packet #%d at offset %d\n", myData.id, storage.get_pointer() - sizeof(SensorData));
+                if (storage.append_data(&data, sizeof(SensorData))) {
+                    Serial.printf("appended packet #%d at offset %d\n", data.id, storage.get_pointer() - sizeof(SensorData));
                 } else {
                     Serial.printf("append failed, partition full? %d \n", storage.get_pointer());
                     errLog.append_data(&log_codes[APPEND_ERR], 1);
@@ -192,6 +192,49 @@ void loop() {
                 }
                 else{
                     Serial.println("failed to change wifi credentials");
+                    errLog.append_data(&log_codes[NVS_WRITE_ERR], 1);
+                }
+                Serial.println("operation complete");
+                break;
+            }
+
+            case 'd':{
+                char farm_id[8];
+                char cow_id[9];
+                Serial.println("enter new farm Id: ");
+                while(!Serial.available());
+                Serial.readBytesUntil('\n',farm_id, sizeof(farm_id));
+                farm_id[strcspn(farm_id,"\r")] = 0;
+
+                Serial.println("enter new cow Id: ");
+                while(!Serial.available());
+                Serial.readBytesUntil('\n', cow_id, sizeof(cow_id));
+                cow_id[strcspn(cow_id,"\r")] = 0;
+
+                Serial.printf("registering with farm Id: %s, cow Id %s", farm_id, cow_id);
+
+                if(partition_mk::change_target_to(farm_id, cow_id)){
+                    Serial.println("successfully changed target id");
+                }
+                else{
+                    Serial.println("failed to change target id");
+                    errLog.append_data(&log_codes[NVS_WRITE_ERR], 1);
+                }
+                Serial.println("operation complete");
+                break;
+
+            }
+            case 'g': {
+                    char device_id[10];
+                    Serial.println("enter new dvice Id");
+                    while(!Serial.available());
+                    Serial.readBytesUntil('\n', device_id,sizeof(device_id));
+                    device_id[strcspn(device_id,"\r")] = 0;
+                     
+                    if(partition_mk::change_device_id_to(device_id))
+                    Serial.printf("chnaged device id to #%s", device_id);
+                else{
+                    Serial.println("failed to chang device id");
                     errLog.append_data(&log_codes[NVS_WRITE_ERR], 1);
                 }
                 Serial.println("operation complete");
