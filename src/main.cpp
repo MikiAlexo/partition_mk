@@ -46,7 +46,7 @@ void setup() {
         for(;;);
     }
     
-    
+    Serial.println("initialization complete, press any key to continue");
 
 }
 
@@ -242,8 +242,10 @@ void loop() {
             }
 
             case 'i': {
-                Serial.printf("partition size: %u bytes\n", storage.get_size());
-                Serial.printf("current write pointer: %d\n", storage.get_pointer());
+                Serial.printf("sotrage partition size: %u bytes\n", storage.get_size());
+                Serial.printf("error_log partition size: %u bytes\n", errLog.get_size());
+                Serial.printf("storage partition current write pointer: %d\n", storage.get_pointer());
+                Serial.printf("error_log partition current write pointer: %d\n", errLog.get_pointer());
                 Serial.printf("configuration namespace free entries: %d\n", partition_mk::config_pref.freeEntries());
                 Serial.printf("info namespace free entries: %d\n", partition_mk::info_pref.freeEntries());
                 Serial.printf("cow average namespace free entries: %d\n", partition_mk::cowavg_pref.freeEntries());

@@ -168,7 +168,7 @@ size_t partition_mk::get_size(void) {
     if (!_part_handle) return 0;
     return _part_handle->size;
 }
-void partition_mk::init_NVS(void){
+void partition_mk::init_NVS(){
     config_pref.begin("credentials", false);
     info_pref.begin("info", false);
     cowavg_pref.begin("cow-avg", false);
