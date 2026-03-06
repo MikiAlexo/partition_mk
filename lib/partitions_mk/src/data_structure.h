@@ -16,7 +16,7 @@
 #define NVS_READ_ERR 6
 #define NVS_WRITE_ERR 7
 
-
+// this whole thing needs to be replaced with enums
 static const uint8_t log_codes[] = {
   /*0-4*/  0x01, 0x02, 0x03, 0x04, 0x05, 
   /*5-10*/ 0x06, 0x07, 0x08, 0x09, 0x10 

@@ -35,12 +35,13 @@ bool partition_mk::begin(const char* partitionName) {
     */
 current_pointer = 0;
 const int chunk_size = 256;
+bool found_end = false;
 uint8_t buffer[chunk_size];
 
 int ff_count = 0;
 size_t ff_start = 0;
 
-while (current_pointer < _part_handle->size) {
+while (current_pointer < _part_handle->size && !found_end) {
     int left = _part_handle->size - current_pointer;
     int to_read = (left < chunk_size) ? left : chunk_size;
 
@@ -55,14 +56,14 @@ while (current_pointer < _part_handle->size) {
 
             if (ff_count == 3) {
                 current_pointer = ff_start;
-                // return; should be break or the loop continues even after finding the end parity (i think, not sure)
+                found_end = true;
                 break;
             }
         } else {
             ff_count = 0;
         }
     }
-
+    if (!found_end)
     current_pointer += to_read;
 }
 

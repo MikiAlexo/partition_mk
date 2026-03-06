@@ -22,6 +22,7 @@ void menu(){
     Serial.println("[c] change wifi credentials");
     Serial.println("[d] change target info");
     Serial.println("[g] change device id");
+    Serial.println("[u] change current pointer");
     Serial.println("[i] Info");
     // Serial.print("Current Pointer: ");
     // Serial.println(storage.get_pointer());
@@ -42,7 +43,7 @@ void setup() {
 
     if (!storage.begin("storage")) {
         Serial.println("failed mount storage. error code: 0x01");
-        (err? :errLog.append_data(&log_codes[STOR_INI_ERR],1));
+        (err? 0 :errLog.append_data(&log_codes[STOR_INI_ERR],1));
         for(;;);
     }
     
@@ -144,8 +145,8 @@ void loop() {
                 break;
             }
             case 'a':{
-                char* ssid;
-                char *pass;
+                char ssid[10] = "";
+                char pass[8] = "";
                 if(partition_mk::read_wificredentials_to(ssid,pass)){
                     Serial.print("SSID:");
                     Serial.println(ssid);
@@ -177,18 +178,22 @@ void loop() {
                 char password[65];
                 Serial.println("enter new wifi SSID:");
                 while (!Serial.available()) {}
-                Serial.readBytesUntil('\n', ssid, sizeof(ssid));
-                ssid[strcspn(ssid, "\r")] = 0;
-
+                size_t n = Serial.readBytesUntil('\n', ssid, sizeof(ssid)-1);
+                ssid[n] = '\0';
+                if(n>0 && ssid[n-1] == '\r')
+                ssid[n-1] = '\0';
+              
                 Serial.println("enter new wifi password:");
                 while (!Serial.available()) {}
-                Serial.readBytesUntil('\n', password, sizeof(password));
-                password[strcspn(password, "\r")] = 0;
+                size_t m = Serial.readBytesUntil('\n', password, sizeof(password)-1);
+                password[m] = '\0';
+                if(m>0 && password[m-1] == '\r')
+                password[m-1] = '\0';
 
                 Serial.printf("SSID: %s , Password: %s\n", ssid, password);
 
                 if(partition_mk::change_wificredentials_to(ssid, password)){
-                    Serial.printf("changed ssid and pass to: %s, %s", ssid, password);
+                    Serial.printf("changed ssid and pass to: %s, %s\n", ssid, password);
                 }
                 else{
                     Serial.println("failed to change wifi credentials");
@@ -251,6 +256,31 @@ void loop() {
                 Serial.printf("cow average namespace free entries: %d\n", partition_mk::cowavg_pref.freeEntries());
                 Serial.println("operation complete");
                 break;
+            }
+            case 't': {
+                 char device_id[10];
+
+                Serial.println("enter test text");
+                while(!Serial.available());
+                size_t n = Serial.readBytesUntil('\n', device_id, sizeof(device_id) - 1);
+                device_id[n] = '\0';
+
+                if (n > 0 && device_id[n-1] == '\r')
+                device_id[n-1] = '\0';
+
+                Serial.println(device_id);
+                Serial.println("opration complete");
+                break;
+                
+            }
+
+            case 'u': {
+                int new_ptr;
+                while(!Serial.available());
+                Serial.readBytes((uint8_t*) &new_ptr, sizeof(new_ptr));
+                storage.set_pointer(new_ptr);
+                Serial.printf("pointer set to %d", storage.get_pointer());
+
             }
             
             default:

@@ -16,7 +16,7 @@ private:
     int current_pointer = 0;
     
 public:
-    static Preferences config_pref;
+    static Preferences config_pref;// make these objects private after testing is done
     static Preferences info_pref;
     static Preferences cowavg_pref;
 
@@ -51,7 +51,7 @@ public:
     static void init_NVS(void);
     static void end_NVS(void);
 
-    // check if the start pointer determiner logic is correctly finding the end parity
+  // if enough time remains implement the satic NVS methods inside of a new sub class    
 
     /*write example test code   {saving wifi credentials, connecting to wifi by loading from NVS,
                                 saving sensor data in sotrage partition, loading stored sensor data,
