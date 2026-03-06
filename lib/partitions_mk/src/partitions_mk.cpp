@@ -47,6 +47,13 @@ while (current_pointer < _part_handle->size && !found_end) {
 
     esp_partition_read(_part_handle, current_pointer, buffer, to_read);
 
+    if (err != ESP_OK) {
+    #if DEBUG_MODE
+    ESP_LOGE(TAG, "partition scan read failed: %s", esp_err_to_name(err));
+    #endif
+    return false;
+    }
+
     for (int i = 0; i < to_read; i++) {
         if (buffer[i] == 0xFF) {
             if (ff_count == 0) {
