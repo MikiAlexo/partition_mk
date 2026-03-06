@@ -30,9 +30,10 @@ bool partition_mk::begin(const char* partitionName) {
     ESP_LOGI(TAG, "Mounted '%s' at 0x%x, Size: %d", partitionName, _part_handle->address, _part_handle->size);
     #endif
 
-    /*The  loop below  finds where  previous data ends so it doesn't overwrite it.
+    /*the  loop below  finds where  previous data ends so it doesn't overwrite it.
      it looks for the first three byte that equals 0xFF.
     */
+    //implement wear-leveling in the future
 current_pointer = 0;
 const int chunk_size = 256;
 bool found_end = false;
