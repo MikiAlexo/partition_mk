@@ -50,7 +50,7 @@ while (current_pointer < _part_handle->size && !found_end) {
 
     if (err != ESP_OK) {
     #if DEBUG_MODE
-    ESP_LOGE(TAG, "partition scan read failed: %s", esp_err_to_name(err));
+    ESP_LOGE(TAG, "partition scan read failed:%s", esp_err_to_name(err));
     #endif
     return false;
     }
@@ -115,7 +115,7 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
     
     if (err != ESP_OK) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "write failed :( %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "write failed :( 🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀 %s", esp_err_to_name(err));
         #endif
         return false;
     }
