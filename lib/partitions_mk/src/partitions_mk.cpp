@@ -65,6 +65,7 @@ bool partition_mk::read_data(int offset, void* buffer, size_t size) {
     return true;
 }
 /// add sector erasure, don't forget that a single data doesn't take an entire sector so erase carefully
+/// also update read so that it doesn't load junk(0xFF) and the order doesn't get fucked cause of circular buffer
 bool partition_mk::write_data(int offset, const void* data, size_t size) {
     if (!_part_handle) return false;
 
