@@ -43,11 +43,13 @@ public:
     static bool change_device_id_to(char* device_id); //g
     static bool change_target_to(char* farm_id, char* cow_id); //d
     static bool change_cowAvg_to();
+    static bool write_pointer(const char* partition_name, int ptr);
 
     static bool read_wificredentials_to(char*ssid, char* password);
     static bool read_device_id_to(char* device_id);    //e
     static bool read_target_to(char* farm_id, char* cow_id); //b
     static bool read_cowAvg_to();
+    static int read_pointer(const char* partition_name);
     static void init_NVS(void);
     static void end_NVS(void);
 

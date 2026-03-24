@@ -21,8 +21,13 @@ static const uint8_t log_codes[] = {
   /*0-4*/  0x01, 0x02, 0x03, 0x04, 0x05, 
   /*5-10*/ 0x06, 0x07, 0x08, 0x09, 0x10 
 };
+// enum{
+//   STOR_INI_ERR,
+//   READ_ERR,
+//   WRITE_ERR,
+//   APPEND_ERR,
 
-
+// };
 struct SensorData {
     uint32_t id;
     uint32_t timestamp;

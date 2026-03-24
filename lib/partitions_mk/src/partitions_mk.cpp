@@ -30,53 +30,17 @@ bool partition_mk::begin(const char* partitionName) {
     ESP_LOGI(TAG, "Mounted '%s' at 0x%x, Size: %d", partitionName, _part_handle->address, _part_handle->size);
     #endif
 
-    /*the  loop below  finds where  previous data ends so it doesn't overwrite it.
-     it looks for the first three byte that equals 0xFF.
-    */
-    //implement wear-leveling in the future
-current_pointer = 0;
-const int chunk_size = 256;
-bool found_end = false;
-uint8_t buffer[chunk_size];
+    // implemented wear-leveling ( shi needs a lot of testing tho);
+    current_pointer = 0;
+    int ptr = read_pointer(partitionName);
 
-int ff_count = 0;
-size_t ff_start = 0;
+    if (ptr == -1)
+        write_pointer(partitionName, 0);
 
-while (current_pointer < _part_handle->size && !found_end) {
-    int left = _part_handle->size - current_pointer;
-    int to_read = (left < chunk_size) ? left : chunk_size;
-
-    esp_partition_read(_part_handle, current_pointer, buffer, to_read);
-
-    if (err != ESP_OK) {
-    #if DEBUG_MODE
-    ESP_LOGE(TAG, "partition scan read failed:%s", esp_err_to_name(err));
-    #endif
-    return false;
-    }
-
-    for (int i = 0; i < to_read; i++) {
-        if (buffer[i] == 0xFF) {
-            if (ff_count == 0) {
-                ff_start = current_pointer + i;
-            }
-            ff_count++;
-
-            if (ff_count == 3) {
-                current_pointer = ff_start;
-                found_end = true;
-                break;
-            }
-        } else {
-            ff_count = 0;
-        }
-    }
-    if (!found_end)
-    current_pointer += to_read;
-}
+    current_pointer = ptr;
 
 #if DEBUG_MODE
-    ESP_LOGI(TAG, "rartition head found at offset: %d", current_pointer);
+    ESP_LOGI(TAG, "partition head set at offset: %d", current_pointer);
 #endif
     return true;
 }
@@ -100,22 +64,43 @@ bool partition_mk::read_data(int offset, void* buffer, size_t size) {
     }
     return true;
 }
-
+/// add sector erasure, don't forget that a single data doesn't take an entire sector so erase carefully
 bool partition_mk::write_data(int offset, const void* data, size_t size) {
     if (!_part_handle) return false;
 
     if (offset + size > _part_handle->size) {
-        #if DEBUG_MODE
-        ESP_LOGE(TAG, "write out of bounds");
-        #endif
-        return false;
+       
+        uint8_t buf;
+
+        if(read_data(0, &buf, 1)){
+
+            if( buf != 0xFF){
+                #if DEBUG_MODE
+                ESP_LOGE(TAG, "write out of bounds, failed to reset pointer");
+                #endif
+                return false;
+            }
+            else{
+                #if DEBUG_MODE
+                ESP_LOGE(TAG, "write out of bounds, pointer reset to 0");
+                #endif
+                if(write_pointer(_name, 0)) offset = 0;
+                else return false;
+            }
+        }
+        else{
+            #if DEBUG_MODE
+            ESP_LOGE(TAG, "failed to verify sector availablity, write out of bounds");
+            #endif
+            return false;
+        }
     }
 
     esp_err_t err = esp_partition_write(_part_handle, offset, data, size);
     
     if (err != ESP_OK) {
         #if DEBUG_MODE
-        ESP_LOGE(TAG, "write failed :( 🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀 %s", esp_err_to_name(err));
+        ESP_LOGE(TAG, "write failed :( %s", esp_err_to_name(err));
         #endif
         return false;
     }
@@ -123,6 +108,7 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
 
         if (offset + size > current_pointer) {
             current_pointer = offset + size;
+            write_pointer(_name, current_pointer);
         }
         return true;
     }
@@ -235,6 +221,8 @@ else{
  }
  }
 
+
+
  bool partition_mk::read_wificredentials_to(char*ssid, char* password){
      String _ssid = config_pref.getString("SSID","CowsVille");
      String _pass = config_pref.getString("Password", "defaiult psassword");
@@ -286,6 +274,25 @@ else{
     else{
         #if DEBUG_MODE
         ESP_LOGI(TAG,"failed to load device ID succesfully");
+        #endif
+        return false;
+    }
+ }
+
+ int partition_mk::read_pointer(const char* partition_name = "storage"){
+return  config_pref.getInt(partition_name, -1);
+ }
+
+  bool partition_mk::write_pointer( const char* partition_name, int ptr){
+    if (config_pref.putInt(partition_name,ptr) > 0){
+        #if DEBUG_MODE
+        ESP_LOGI(TAG,"pointer at partition %s set to : %d", partition_name, ptr);
+        #endif
+        return true;
+    } 
+    else{
+        #if DEBUG_MODE
+        ESP_LOGE(TAG,"failed to set pointer");
         #endif
         return false;
     }
