@@ -96,8 +96,11 @@ bool partition_mk::write_data(uint32_t offset, const void* data, size_t size) {
             return false;
         }
     }
-// check if sector is empty, if not move to the next sector, erase it and write
-// it doesn't reset to origin if the new offset is >= flash size, could lock the system from writing 
+/// checks if sector is empty, if not move to the next sector, erase it and write
+/* it doesn't reset to origin if the new offset is >= flash size, could lock the system from writing 
+  it should not erase previously stored data, the current ring buffer implementation erases them
+  if i want to write 5000 bytes, it only clears 4096 bytes the last 904 bytes will corrupt b/c next sector wasn't erased 
+*/
     uint32_t buf;
     if(read_data(offset, &buf, 4)){
         if(buf != 0xFFFFFFFF){
@@ -122,7 +125,7 @@ bool partition_mk::write_data(uint32_t offset, const void* data, size_t size) {
         #endif
         return false;
     }
-    esp_err_t err = esp_partition_write(_part_handle, offset, data, size);
+    esp_err_t err = esp_partition_write(_part_handle, offset, data, size);//writes to size but only a single sector is erased,bad
     
     if (err != ESP_OK) {
         #if DEBUG_MODE
