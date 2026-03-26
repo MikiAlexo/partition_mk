@@ -64,9 +64,10 @@ bool partition_mk::read_data(int offset, void* buffer, size_t size) {
     }
     return true;
 }
-/// add sector erasure, don't forget that a single data doesn't take an entire sector so erase carefully
-/// also update read so that it doesn't load junk(0xFF) and the order doesn't get fucked cause of circular buffer
-bool partition_mk::write_data(int offset, const void* data, size_t size) {
+/// add sector erasure before write, don't forget that a single data doesn't take an entire sector so erase carefully
+/// also update read so that it doesn't load junk(0xFF,0x34) and the order doesn't get fucked cause of circular buffer
+/// add retry if it fails the first time
+bool partition_mk::write_data(uint32_t offset, const void* data, size_t size) {
     if (!_part_handle) return false;
 
     if (offset + size > _part_handle->size) {
@@ -97,6 +98,30 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
         }
     }
 
+    uint32_t buf;
+    if(read_data(offset, &buf, 4)){
+        if(buf != 0xFFFFFFFF){
+            if(!erase_sector(offset)){
+                offset = (offset & ~4095) + 4096;//moves offset to the next sector
+                if(offset >= _part_handle->size || offset + size > _part_handle->size){
+                    #if DEBUG_MODE
+                    ESP_LOGE(TAG, "no more sectors available, write failed");
+                    #endif
+                    return false;
+                }
+                erase_sector(offset);// fuck, what if the next sector contains data
+            }
+           #if DEBUG_MODE
+           ESP_LOGI(TAG,"sector erased at offset %d", offset);
+           #endif
+        }
+    }
+    if (offset + size < current_pointer){
+         #if DEBUG_MODE
+            ESP_LOGE(TAG, "can't write backwards[(offset) %d + (size) %d < (pointer) %d]", offset, size, current_pointer);
+        #endif
+        return false;
+    }
     esp_err_t err = esp_partition_write(_part_handle, offset, data, size);
     
     if (err != ESP_OK) {
@@ -106,12 +131,9 @@ bool partition_mk::write_data(int offset, const void* data, size_t size) {
         return false;
     }
     else {
-
-        if (offset + size > current_pointer) {
             current_pointer = offset + size;
             write_pointer(_name, current_pointer);
-        }
-        return true;
+            return true;
     }
 }
 

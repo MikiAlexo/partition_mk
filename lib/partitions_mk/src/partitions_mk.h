@@ -26,7 +26,7 @@ public:
 
     bool read_data(int offset, void* buffer, size_t size);
     
-    bool write_data(int offset, const void* data, size_t size);
+    bool write_data(uint32_t offset, const void* data, size_t size);
     bool append_data(const void* data, size_t size);
 
     bool erase_sector(int offset);
