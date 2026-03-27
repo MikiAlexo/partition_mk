@@ -1,5 +1,5 @@
 #include "partitions_mk.h"
-
+#define DEBUG_MODE 1
 #if DEBUG_MODE
 static const char* TAG = "PartMK";
 #endif

@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "partitions_mk.h"
 #include "data_structure.h"
+#include "esp_log.h"
 
 
 partition_mk storage;  
@@ -31,8 +32,9 @@ void menu(){
 void setup() {
   bool err = false;
     Serial.begin(115200);
+    esp_log_level_set("*", ESP_LOG_DEBUG);
      partition_mk::init_NVS();
-
+     
     Serial.println("initializing partitions...");
 
     if (!errLog.begin("errorlog")) {
