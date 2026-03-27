@@ -79,6 +79,27 @@ void loop() {
                 Serial.println("operation complete");
                 break;
             }
+            case 'z': {
+                Serial.println("\n READING CONTENT...");
+                
+                int readPos = 0; 
+                int endPos = storage.get_pointer();
+                
+                uint8_t buffer;
+
+                while (readPos < endPos) {
+  
+                    if (errLog.read_data(readPos, &buffer, sizeof(buffer))) {
+                        
+                        if (buffer == 0xFF) {
+                            Serial.println("[found end parity]");
+                            break; 
+                        }
+                        Serial.printf("[%d] Log Code: 0x%02X\n", readPos, buffer);
+                        readPos+=sizeof(buffer);
+            }}
+            break;
+            }
 
             case 'r': {
                 Serial.println("\n READING CONTENT...");
